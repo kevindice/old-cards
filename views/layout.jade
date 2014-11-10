@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    title= title
+    meta(name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body(class=cssBodyClass)
+    #screenContainer
+      block content
+
+    #myModal.reveal-modal(data-reveal)
+      h2 Hey There!!!
+      p.lead How's it going?
+      a.close-reveal-modal &#215;
+
+    
+    script(src='/javascripts/jquery.min.js')
+        
+    script(src="/javascripts/foundation.js")
+    script(src="/javascripts/foundation.reveal.js")
+    script $(document).foundation();
+    
+    script(src='https://cdn.socket.io/socket.io-1.2.0.js')
+    
+    script var socket = io();
+    
+    script(src=jsForPage)
+
+    script document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')

@@ -1,0 +1,75 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  background: black;
+  line-height: 1.2;
+  color: white;
+}
+
+#signUpHeader, #signUpHeader2{
+	background: black;
+	color: white;
+	padding-top: 0.3rem;
+	padding-bottom: 0.3rem;
+	h1{
+	  margin-top:0;
+	  margin-bottom:0;
+	  font-size: 1.6rem;
+	}
+}
+
+#signUpHeader{
+  opacity:0;
+}
+
+
+
+h1, h2{
+  color: white;
+}
+h1{
+  font-size: 4rem;
+  margin-top: 0.8rem;
+}
+h2{
+  font-size: 2rem;
+}
+
+#landingH1, #landingH2{
+  opacity: 0;
+}
+
+#startButton{
+	background: #febd15;
+	color: black;
+	margin-top: 1rem;
+	opacity: 0;
+}
+
+p{
+  color: white;
+  font-size: 1.5rem;
+}
+input[type='text']{
+  font-size: 1.8rem;
+  padding-top: 1.4rem;
+  padding-bottom: 1.4rem;
+}
+
+#startParagraph, #startInputBox, #startSubmitButton,
+#whoParagraph, #whoInputBox, #whoSubmitButton{
+  opacity: 0;
+}
+
+.submitStuff, .submitStuff:hover, .submitStuff:active, .submitStuff:focus{
+  background: #febd15;
+  color: black;
+}
+.submitStuff:hover, .submitStuff:active, .submitStuff:focus{
+  background: #cc7c0c;
+}
+
+#myModal{
+  h2, p{
+    color: black;
+  }
+}
