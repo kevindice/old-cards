@@ -22,5 +22,5 @@ exports.tryParseJSON = function (jsonString, success, failure){
 };
 
 exports.getUnixTime = function (){
-	return Math.floor(Date.UTC()/1000);
+	return new Date().getTime();
 }

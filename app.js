@@ -1,22 +1,17 @@
-// requires
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+// general requires
+var util = require('./util.js');
+
+
+// launch grunt processes for livereload and SASS compilation
+// eventually JS will be compressed here too.
 var safeps = require('safeps');
-var mongojs = require('mongojs');
+setTimeout(function(){safeps.exec('grunt server')},1000);
 
-var gameNameRequests = require('./gameNameRequest.js');
-
-// App specific modules for database actions and socket.io stuff
-var dbTest = require('./dbresponses.js');
 
 // connect to database
+var mongojs = require('mongojs');
 var db = mongojs.connect("cah", ["whiteCards", "blackCards", "games"]);
 
-// number of socket.io connections
-var numOfConnections = 0;
 
 // express and socket.io setup
 var express = require('express');
@@ -25,51 +20,63 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 
-// launch grunt processes for livereload and SASS compilation
-// eventually JS will be compressed here too.
-setTimeout(function(){safeps.exec('grunt server')},1000);
-
-var routes = require('./routes/index');
-var posts = require('./routes/posts');
-
 // view engine setup
+// Use view directory
+var path = require('path');
 app.set('views', path.join(__dirname, 'views'));
+
+
+// Use jade to render stuff
 app.set('view engine', 'jade');
 
 
+// Set the favicon
+var favicon = require('serve-favicon');
 app.use(favicon(__dirname + '/public/favicon.ico'));
+
+
+// Log the requests and everything with morgan 
+var logger = require('morgan');
 app.use(logger('dev'));
+
+
+// Set up the body-parser to 
+var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+
+// Set up the cookieParser
+var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', function(socket){
-  console.log('a user connected');
-  numOfConnections += 1;
-  console.log(numOfConnections);
-  socket.on('disconnect', function(socket){
-    console.log('a user disconnected');
-    numOfConnections -= 1;
-    console.log(numOfConnections);
-  });
-  socket.on('test', function(msg){
-    console.log('message recieved' + msg);
-    socket.broadcast.emit('asdf', msg);
-  });
 
-  socket.on('moduleTest', function(msg){
-    dbTest.getRandomWhiteCard(db, function(response){
-      socket.emit('testing', 'In response to ' + msg + ', I say:  ' + response);
-    });
+// What happens when a socket.io connection is established?
+io.on('connection', function(socket){
+
+  socket.on('disconnect', function(socket){
+
   });
 
   socket.on('gameRequest', function(msg){
-    gameNameRequests.handleGameNameRequest(msg, socket, db);
-  });
-
-  socket.on('broadcastMessage', function(msg){
-    socket.broadcast.emit('fire', msg);
+    util.tryParseJSON(msg, 
+      function parseSucceeded(reqObj){
+        socket.join(reqObj.gameName);
+        //if (Object.keys(io.adapter.rooms[reqObj.gameName]).length == 1) {
+          //console.log('made Master');
+          //socket.on('roomBroadcast', function(msg){
+            //io.to(reqObj.gameName).emit('fire', msg);
+          //});
+        //};
+        socket.emit('gameResponse', 'created');
+      },
+      function parseFailed(){
+        socket.emit('gameResponse', 'unacceptable');
+      }
+    );
+    // Outdated
+    //gameNameRequests.handleGameNameRequest(msg, socket, db);
   });
 
   socket.on('nameRequest', function(msg){
@@ -83,15 +90,14 @@ io.on('connection', function(socket){
 
 });
 
+
+
+// Set up routes for other stuff
+var routes = require('./routes/index');
+var posts = require('./routes/posts');
 app.use('/', routes);
 app.use('/', posts);
 
-app.get('/randomCard', function(req, res){
-  var callback = function(respObj){
-    res.send("<html style=\"width: 100vw;font-size: 40px;\"><body style=\"width: 100vw; overflow: wrap; margin: 0; padding: 0;\"><div style=\"margin:0; padding: 1em; height:100vh ; width:100vw; color: white; background: black; font-family: Arial;\"><h1>Random Card</h1><p>Card Number:  " + respObj.num + "</p><p>Expansion Pack:  " + respObj.expansionPack + "</p><p style=\"font-size: 1.3em;\">" + respObj.content + "</p><br><br><a style=\"color: magenta; font-size: 2em;\" href=\"http://cah.kevindice.com:8080/randomCard\">More</a></div></body></html>");
-  };
-  dbTest.getRandomWhiteCard(db, callback);
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

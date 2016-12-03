@@ -52,7 +52,7 @@ function setNameRequestListener(){
 }
 
 
-function sendGameRequest(req, created, starting, progress, bad){
+function sendGameRequest(req, created, starting, progress, bad, badLength){
 	console.log("{\"gameName\":\"" + req + "\"}");
 	socket.emit('gameRequest', "{\"gameName\":\"" + req + "\"}");
     socket.on('gameResponse', function(msg){
@@ -64,6 +64,8 @@ function sendGameRequest(req, created, starting, progress, bad){
       	progress();
       } else if (msg=="unacceptable"){
       	bad();
+      } else if (msg=="unacceptable-length"){
+      	badLength();
       }
     });
 }
@@ -98,6 +100,10 @@ function setGameRequestListener(){
       	},
       	bad = function(){
       		$('#gameRequestFeedback').html("<div data-alert class=\"alert-box alert radius\">Unacceptable input.  What are you doing?<a href=\"#\" class=\"close\">&times;</a></div>");
+      		window.setTimeout(setGameRequestListener, 600);
+        },
+        badLength = function(){
+        	$('#gameRequestFeedback').html("<div data-alert class=\"alert-box alert radius\">Please enter a name of at least 5 characters.<a href=\"#\" class=\"close\">&times;</a></div>");
       		window.setTimeout(setGameRequestListener, 600);
       });
 

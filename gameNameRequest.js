@@ -8,7 +8,7 @@ var gameRequestSuccess = function(gameNameRequestObject, socket, db){
 	if (reqGameName.length < 5){  // If not long enough
 		// Reject Game Request
 		console.log("Unacceptable - The JSON parsed but was not long enough.");
-		socket.emit('gameResponse', 'unacceptable');
+		socket.emit('gameResponse', 'unacceptable-length');
 	}
 	else{
 		// Process Valid Game Request
@@ -24,13 +24,6 @@ var gameRequestSuccess = function(gameNameRequestObject, socket, db){
 						socket.emit('gameResponse', 'exists-progress');
 					}
 				});
-				// See if they can:
-				//     JOIN an newly forming game
-				//     JOIN a game that has been in progress for a while
-
-				// probably put this in a callback
-				// tell the client what we've done
-				console.log("Game Exists but it you haven't programed enough to know if it is starting or in progress.");
 			}
 			else if(count == 0) {
 				// create game by inserting it into the database
@@ -51,17 +44,14 @@ var gameRequestSuccess = function(gameNameRequestObject, socket, db){
 
 var gameRequestFailure = function(socket, msgJSON){
 	socket.emit('gameResponse', 'unacceptable');
-	console.log('JSON Could Not Be Parsed:'  + msgJSON);
 }
 
 // end functions for game requests
 
 exports.handleGameNameRequest = function(msgJSON, socket, db) {
-	console.log("DB is 1 " + (typeof db));
-	console.log(msgJSON);
+	// try to parse the JSON data
 	util.tryParseJSON(msgJSON, 
 		function(gameNameRequestObject){
-		  console.log("DB is 2 " + (typeof db));
 		  gameRequestSuccess(gameNameRequestObject, socket, db);
 		},
 		function(){
